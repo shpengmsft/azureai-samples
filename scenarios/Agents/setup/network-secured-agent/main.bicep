@@ -74,6 +74,7 @@ param defaultAiProjectDescription string = 'This is an example AI Project resour
 param resourceGroupLocation string = resourceGroup().location
 
 @allowed([
+  'centraluseuap'
   'australiaeast'
   'eastus'
   'eastus2'
