@@ -18,32 +18,34 @@ USAGE:
     Set these environment variables with your own values:
     1) PROJECT_ENDPOINT - the Azure AI Assistants endpoint.
     2) MODEL_DEPLOYMENT_NAME - The deployment name of the AI model, as found under the "Name" column in 
-       the "Models + endpoints" tab in your Azure AI Foundry project.
+    the "Models + endpoints" tab in your Azure AI Foundry project.
 """
 
-import os
 import time
 from azure.ai.assistants import AssistantsClient
 from azure.identity import DefaultAzureCredential
 from azure.ai.assistants.models import ListSortOrder, MessageTextContent
-from dotenv import load_dotenv  # Import dotenv
+#from dotenv import load_dotenv  # Import dotenv
 
 # Load environment variables from .env file
-load_dotenv()
+#load_dotenv()
 
+# Format of the project_endpoint is https://<your-ai-services-account-name>.services.ai.azure.com/api/projects/<your-project-name>
+project_endpoint = "https://acct418a.services.ai.azure.com/api/projects/prj1"
 # [START create_project_client]
 assistants_client = AssistantsClient(
-    endpoint=os.environ["PROJECT_ENDPOINT"],
+    endpoint=project_endpoint,       #os.environ["PROJECT_ENDPOINT"],
     credential=DefaultAzureCredential(),
 )
 # [END create_project_client]
 
+model_deployment_name = "gpt-4o-mini-deployment"  # Change if you deployed a different model
 with assistants_client:
     # [START create_assistant]
     assistant = assistants_client.create_assistant(
-        model=os.environ["MODEL_DEPLOYMENT_NAME"],
+        model=model_deployment_name,                # os.environ["MODEL_DEPLOYMENT_NAME"],
         name="my-assistant",
-        instructions="You are helpful assistant",
+        instructions="You are a helpful assistant",
     )
     # [END create_assistant]
     print(f"Created assistant, assistant ID: {assistant.id}")
