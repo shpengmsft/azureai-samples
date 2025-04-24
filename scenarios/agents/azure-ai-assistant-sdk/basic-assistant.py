@@ -31,7 +31,8 @@ from azure.ai.assistants.models import ListSortOrder, MessageTextContent
 #load_dotenv()
 
 # Format of the project_endpoint is https://<your-ai-services-account-name>.services.ai.azure.com/api/projects/<your-project-name>
-project_endpoint = "https://acct418a.services.ai.azure.com/api/projects/prj1"
+# project_endpoint = "https://acct418a.services.ai.azure.com/api/projects/prj1"
+project_endpoint = "https://shpeng1rpcanary417.services.ai.azure.com/api/projects/basic-nocaphost"  # Canary
 # [START create_project_client]
 assistants_client = AssistantsClient(
     endpoint=project_endpoint,       #os.environ["PROJECT_ENDPOINT"],

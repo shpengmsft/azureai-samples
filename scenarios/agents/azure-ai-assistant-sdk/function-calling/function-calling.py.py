@@ -1,20 +1,15 @@
-import os
 import time
-# from azure.ai.projects import AIProjectClient
-from azure.identity import DefaultAzureCredential
+
 from azure.ai.assistants import AssistantsClient
-from azure.ai.assistants.models import FunctionTool, SubmitToolOutputsAction, RequiredFunctionToolCall
+from azure.ai.assistants.models import FunctionTool, RequiredFunctionToolCall, SubmitToolOutputsAction
+from azure.identity import DefaultAzureCredential
 from user_functions import user_functions  # found in the user_functions.py file in this directory.
 
-
-# Create an Azure AI Client from a connection string, copied from your AI Studio project.
-# At the moment, it should be in the format "<HostName>;<AzureSubscriptionId>;<ResourceGroup>;<HubName>"
-# Customer needs to login to Azure subscription via Azure CLI and set the environment variables
 project_endpoint = "https://acct418a.services.ai.azure.com/api/projects/prj1"
 model_deployment_name = "gpt-4o-mini-deployment"  # Change if you deployed a different model
 
 assistants_client = AssistantsClient(
-    endpoint=project_endpoint,       #os.environ["PROJECT_ENDPOINT"],
+    endpoint=project_endpoint,  # os.environ["PROJECT_ENDPOINT"],
     credential=DefaultAzureCredential(),
 )
 
@@ -24,9 +19,10 @@ functions = FunctionTool(functions=user_functions)
 with assistants_client:
     # [START create_assistant]
     assistant = assistants_client.create_assistant(
-        model=model_deployment_name,                # os.environ["MODEL_DEPLOYMENT_NAME"],
+        model=model_deployment_name,  # os.environ["MODEL_DEPLOYMENT_NAME"],
         name="my-assistant",
         instructions="You are a helpful assistant",
+        tools=functions.definitions,
     )
     # [END create_assistant]
     print(f"Created assistant, assistant ID: {assistant.id}")
@@ -35,10 +31,14 @@ with assistants_client:
     print(f"Created thread, ID: {thread.id}")
 
     # [START create_message]
-    message = assistants_client.create_message(thread_id=thread.id, role="user", content="Hello, send an email with the datetime and weather information in New York?")
+    message = assistants_client.create_message(
+        thread_id=thread.id,
+        role="user",
+        content="Hello, Please send an email with the datetime and weather information in New York.",
+    )
     # [END create_message]
     print(f"Created message, message ID: {message.id}")
-    
+
     run = assistants_client.create_run(thread_id=thread.id, assistant_id=assistant.id)
     print(f"Created run, ID: {run.id}")
 
@@ -58,6 +58,7 @@ with assistants_client:
                 if isinstance(tool_call, RequiredFunctionToolCall):
                     try:
                         output = functions.execute(tool_call)
+                        print(f"Tool call {tool_call.id} executed successfully with Output: {output}")
                         tool_outputs.append(
                             {
                                 "tool_call_id": tool_call.id,
