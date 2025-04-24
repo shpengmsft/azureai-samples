@@ -50,7 +50,7 @@ with assistants_client:
         print(f"Run failed: {run.last_error}")
 
     # Delete the assistant when done
-    assistants_client.delete_agent(assistant.id)
+    assistants_client.delete_assistant(assistant.id)
     print("Deleted agent")
 
     # Fetch and log all messages
