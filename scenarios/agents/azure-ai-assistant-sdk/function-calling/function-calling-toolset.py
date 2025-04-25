@@ -1,7 +1,5 @@
 # This sample demonstrates how to use agent operations with toolset from the Azure Agents service using a synchronous client. It's purpose is to showcase automatic tool calling using ToolSet in non-streaming scenario
 
-import os
-
 from azure.ai.assistants import AssistantsClient
 from azure.ai.assistants.models import CodeInterpreterTool, FunctionTool, ToolSet
 from azure.identity import DefaultAzureCredential
