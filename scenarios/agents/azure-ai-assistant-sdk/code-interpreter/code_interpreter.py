@@ -18,26 +18,24 @@ USAGE:
 
     Set these environment variables with your own values:
     1) PROJECT_ENDPOINT - the Azure AI Assistants endpoint.
-    2) MODEL_DEPLOYMENT_NAME - The deployment name of the AI model, as found under the "Name" column in 
+    2) MODEL_DEPLOYMENT_NAME - The deployment name of the AI model, as found under the "Name" column in
        the "Models + endpoints" tab in your Azure AI Foundry project.
 """
 
-import os
 from azure.ai.assistants import AssistantsClient
 from azure.ai.assistants.models import CodeInterpreterTool
 from azure.ai.assistants.models import FilePurpose, MessageRole
 from azure.identity import DefaultAzureCredential
 from pathlib import Path
-from dotenv import load_dotenv  # Import dotenv
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Format of the project_endpoint is https://<your-ai-services-account-name>.services.ai.azure.com/api/projects/<your-project-name>
-project_endpoint = os.environ["PROJECT_ENDPOINT"]
+# project_endpoint = os.environ["PROJECT_ENDPOINT"]
 
 # Change if you deployed a different model
-model_deployment_name = "gpt-4o"
+# model_deployment_name = "gpt-4o"
+
+project_endpoint = "https://acct418a.services.ai.azure.com/api/projects/prj1"
+model_deployment_name = "gpt-4o-mini-deployment"  # Change if you deployed a different model
 
 assistants_client = AssistantsClient(
     endpoint=project_endpoint,
@@ -47,7 +45,13 @@ with assistants_client:
     # Upload a file and wait for it to be processed
     # [START upload_file_and_create_assistant_with_code_interpreter]
     # Update the file path to the correct location
-    file_path = "c:/Users/fosteramanda/Documents/azureai-samples/scenarios/Agents/data/nifty_500_quarterly_results.csv"  # Corrected file path
+    current_dir = Path(__file__).parent
+    file_path = current_dir / "nifty_500_quarterly_results.csv"  # Corrected file path
+
+    # Check if the file exists
+    if not file_path.is_file():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    print(f"Uploading file: {file_path}")
 
     file = assistants_client.upload_file_and_poll(file_path=file_path, purpose=FilePurpose.ASSISTANTS)
     print(f"Uploaded file, file ID: {file.id}")
@@ -58,7 +62,7 @@ with assistants_client:
     assistant = assistants_client.create_assistant(
         model=model_deployment_name,
         name="my-assistant",
-        instructions="You are helpful assistant",
+        instructions="You are a helpful assistant",
         tools=code_interpreter.definitions,
         tool_resources=code_interpreter.resources,
     )
