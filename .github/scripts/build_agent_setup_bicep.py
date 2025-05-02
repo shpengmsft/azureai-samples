@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 from azure.cli.core import get_default_cli
@@ -15,7 +16,7 @@ def run_az_command(*args: Union[str, Path]) -> None:
         sys.exit(exit_code)
 
 
-def get_main_bicep_files(modified_files: List[str]) -> List[Path]:
+def get_main_bicep_files(modified_files: List[Path]) -> List[Path]:
     """Finds unique folders with modified files and ensures 'main.bicep' exists in each."""
     modified_folders = {Path(f).parent for f in modified_files}
     return [folder / "main.bicep" for folder in modified_folders if (folder / "main.bicep").exists()]
@@ -26,6 +27,10 @@ def build_bicep_file(bicep_file: Path) -> None:
     output_file = bicep_file.with_name("azuredeploy.json")
 
     print(f"🔹 Building Bicep: {bicep_file} -> {output_file}")
+    os.environ.update({"AZURE_BICEP_USE_BINARY_FROM_PATH": "false", "AZURE_BICEP_CHECK_VERSION": "false"})
+
+    # Pin the bicep CLI to minimize pre-commit failures due to modified metadata in files.
+    run_az_command("bicep", "install", "--version", "v0.33.93")
 
     # Run az bicep build using Azure CLI SDK
     run_az_command("bicep", "build", "--file", str(bicep_file), "--outfile", str(output_file))
